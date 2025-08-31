@@ -74,17 +74,14 @@ class Agent:
 class Cardiologist(Agent):
     def __init__(self, medical_report):
         super().__init__(medical_report, "Cardiologist")
-
     
 class Psychologist(Agent):
     def __init__(self, medical_report):
         super().__init__(medical_report, "Psychologist")
-
         
 class Pulmonologist(Agent):
     def __init__(self, medical_report):
         super().__init__(medical_report, "Pulmonologist")
-
     
 class MultidisciplinaryTeam(Agent):
     def __init__(self, cardiologist_report, psychologist_report, pulmonologist_report):
