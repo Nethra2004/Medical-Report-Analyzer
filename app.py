@@ -3,11 +3,9 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from Utils.Agent import Cardiologist, Psychologist, Pulmonologist, MultidisciplinaryTeam
 import os
 
-# Add these imports for PDF/DOCX support
 from docx import Document
 import PyPDF2
 
-# Function to extract text from txt, docx, or pdf
 def extract_text_from_file(filepath):
     text = ""
     if filepath.endswith(".txt"):
@@ -23,13 +21,11 @@ def extract_text_from_file(filepath):
                 text += page.extract_text() or ""
     return text
 
-
 app = Flask(__name__)
 UPLOAD_FOLDER = 'uploads'
 RESULT_PATH = 'results/final_diagnosis.txt'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(os.path.dirname(RESULT_PATH), exist_ok=True)
-
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -38,11 +34,9 @@ def index():
         if file and file.filename.lower().endswith(('.txt', '.docx', '.pdf')):
             filepath = os.path.join(UPLOAD_FOLDER, file.filename)
             file.save(filepath)
-
-            # Extract text from uploaded file
+            
             medical_report = extract_text_from_file(filepath)
 
-            # Run individual specialists
             agents = {
                 "Cardiologist": Cardiologist(medical_report),
                 "Psychologist": Psychologist(medical_report),
@@ -56,7 +50,6 @@ def index():
                     agent_name = futures[future]
                     responses[agent_name] = future.result()
 
-            # Run multidisciplinary agent
             team_agent = MultidisciplinaryTeam(
                 cardiologist_report=responses["Cardiologist"],
                 psychologist_report=responses["Psychologist"],
@@ -64,7 +57,6 @@ def index():
             )
             final_diagnosis = team_agent.run()
 
-            # Save the diagnosis
             final_diagnosis_text = "### Final Diagnosis:\n\n" + final_diagnosis
             with open(RESULT_PATH, 'w') as result_file:
                 result_file.write(final_diagnosis_text)
@@ -75,9 +67,5 @@ def index():
 
     return render_template("index.html")
 
-
 if __name__ == '__main__':
     app.run(debug=True)
-
-
-
