@@ -22,9 +22,6 @@ with ThreadPoolExecutor() as executor:
     for future in as_completed(futures):
         agent_name, response = future.result()
         responses[agent_name] = response
-    
-
-
 
 team_agents = MultidisciplinaryTeam(
     cardiologist_report=responses["Cardiologist"],
@@ -32,16 +29,12 @@ team_agents = MultidisciplinaryTeam(
     pulmonologist_report=responses["Pulmonologist"]
 )
 
-
 final_diagnosis = team_agents.run()
 txt_output_path = "results/final_diagnosis.txt"
 
 os.makedirs(os.path.dirname(txt_output_path), exist_ok=True)
 
-
 with open(txt_output_path, "w") as txt_file:
     txt_file.write(final_diagnosis)
 
-
 print(f"Final Diagnosis has been saved to {txt_output_path}")
-
