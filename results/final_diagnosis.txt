@@ -1,0 +1,7 @@
+### Final Diagnosis:
+
+Based on the medical reports from the Cardiologist, Psychologist, and Pulmonologist, our multidisciplinary team has identified the following 3 possible health issues of the patient:
+
+* **Malingering**: The patient's behavior and physical examination results suggest that they may be fabricating or exaggerating symptoms for personal gain or to avoid responsibilities. This is supported by the Cardiologist's report of clear signs of malingering and the Psychologist's report of potential malingering behavior.
+* **Somatization Disorder**: The patient's complaints of low back and right testicular-to-low-back pain, despite normal diagnostic studies and lack of objective evidence of disc degeneration, may indicate somatization disorder. This is a condition characterized by recurring, multiple, and unexplained physical complaints that cannot be fully explained by a medical condition.
+* **Psychogenic Pain**: The patient's symptoms may be related to psychogenic pain, which is pain that is not caused by a physical disorder but rather by psychological factors. This is supported by the Cardiologist's report of possible psychogenic pain and the Psychologist's report of potential factitious disorder, which may be contributing to the patient's symptoms.

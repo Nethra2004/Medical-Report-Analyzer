@@ -1,0 +1,83 @@
+from flask import Flask, request, render_template, redirect, url_for
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from Utils.Agent import Cardiologist, Psychologist, Pulmonologist, MultidisciplinaryTeam
+import os
+
+# Add these imports for PDF/DOCX support
+from docx import Document
+import PyPDF2
+
+# Function to extract text from txt, docx, or pdf
+def extract_text_from_file(filepath):
+    text = ""
+    if filepath.endswith(".txt"):
+        with open(filepath, "r", encoding="utf-8") as f:
+            text = f.read()
+    elif filepath.endswith(".docx"):
+        doc = Document(filepath)
+        text = "\n".join([para.text for para in doc.paragraphs])
+    elif filepath.endswith(".pdf"):
+        with open(filepath, "rb") as f:
+            reader = PyPDF2.PdfReader(f)
+            for page in reader.pages:
+                text += page.extract_text() or ""
+    return text
+
+
+app = Flask(__name__)
+UPLOAD_FOLDER = 'uploads'
+RESULT_PATH = 'results/final_diagnosis.txt'
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(os.path.dirname(RESULT_PATH), exist_ok=True)
+
+
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    if request.method == 'POST':
+        file = request.files['report']
+        if file and file.filename.lower().endswith(('.txt', '.docx', '.pdf')):
+            filepath = os.path.join(UPLOAD_FOLDER, file.filename)
+            file.save(filepath)
+
+            # Extract text from uploaded file
+            medical_report = extract_text_from_file(filepath)
+
+            # Run individual specialists
+            agents = {
+                "Cardiologist": Cardiologist(medical_report),
+                "Psychologist": Psychologist(medical_report),
+                "Pulmonologist": Pulmonologist(medical_report)
+            }
+
+            responses = {}
+            with ThreadPoolExecutor() as executor:
+                futures = {executor.submit(agent.run): name for name, agent in agents.items()}
+                for future in as_completed(futures):
+                    agent_name = futures[future]
+                    responses[agent_name] = future.result()
+
+            # Run multidisciplinary agent
+            team_agent = MultidisciplinaryTeam(
+                cardiologist_report=responses["Cardiologist"],
+                psychologist_report=responses["Psychologist"],
+                pulmonologist_report=responses["Pulmonologist"]
+            )
+            final_diagnosis = team_agent.run()
+
+            # Save the diagnosis
+            final_diagnosis_text = "### Final Diagnosis:\n\n" + final_diagnosis
+            with open(RESULT_PATH, 'w') as result_file:
+                result_file.write(final_diagnosis_text)
+
+            return render_template("index.html", diagnosis=final_diagnosis_text)
+
+        return render_template("index.html", error="Please upload a valid .txt, .docx, or .pdf file.")
+
+    return render_template("index.html")
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+
+
